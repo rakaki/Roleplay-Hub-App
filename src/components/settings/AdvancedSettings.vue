@@ -90,6 +90,28 @@
                         step="1"
                         class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all">
                 </div>
+
+                <!-- Chat Wait Timeout Setting -->
+                <div
+                    class="bg-gray-50/60 p-4 rounded-xl border border-gray-100 hover:bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">等待超时</label>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" v-model="settings.chatWaitTimeoutEnabled"
+                                class="settings-toggle-input sr-only">
+                            <div class="settings-toggle settings-toggle--indigo"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" v-model.number="settings.chatWaitTimeoutSeconds" min="1" max="600"
+                            step="1" :disabled="!settings.chatWaitTimeoutEnabled"
+                            :class="['w-full bg-gray-50/60 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition-all', settings.chatWaitTimeoutEnabled ? '' : 'opacity-40']">
+                        <span class="text-[10px] text-gray-400 whitespace-nowrap">秒</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                        开启后，模型在设定秒数内未返回首字节或首个正文即中断（默认 200 秒，适合思考模型）；关闭后一直等待，仅受 10 分钟总时长限制。
+                    </div>
+                </div>
             </div>
         </div>
     </div>

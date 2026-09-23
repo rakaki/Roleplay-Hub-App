@@ -37,10 +37,14 @@ test('API URL normalization is unified and handles trailing slashes', () => {
 // src/composables/useMessageSender.mjs; assertions for pipeline-internal text
 // read from `sender` instead of `app`.
 test('聊天请求按首包、首有效 token、有效流空闲和总时长超时', () => {
-    assert.ok(sender.includes('CHAT_FIRST_BYTE_TIMEOUT_MS = 60000'));
-    assert.ok(sender.includes('CHAT_FIRST_TOKEN_TIMEOUT_MS = 60000'));
+    assert.ok(sender.includes('CHAT_FIRST_BYTE_TIMEOUT_MS = 200000'));
+    assert.ok(sender.includes('CHAT_FIRST_TOKEN_TIMEOUT_MS = 200000'));
     assert.ok(sender.includes('CHAT_STREAM_IDLE_TIMEOUT_MS = 120000'));
     assert.ok(sender.includes('CHAT_TOTAL_TIMEOUT_MS = 600000'));
+    // 等待时长可由设置项覆盖（开关 + 自定义秒数）
+    assert.ok(sender.includes('const resolveChatWaitTimeoutMs = () => {'));
+    assert.ok(sender.includes('firstByteMs: chatWaitTimeoutMs'));
+    assert.ok(sender.includes('firstTokenMs: chatWaitTimeoutMs'));
     // watchdog 必须提升到函数作用域声明(finally 才能清理), 不能只在 try 块内 const 声明
     assert.ok(sender.includes('let chatWatchdog = null;'));
     assert.ok(sender.includes('chatWatchdog = setInterval'));

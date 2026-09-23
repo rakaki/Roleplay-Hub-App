@@ -139,10 +139,24 @@ export function useMessageSender(deps) {
     let waitTimer = null;
 
         // --- Chat request resilience (timeout / retry / friendly errors) ---
-        const CHAT_FIRST_BYTE_TIMEOUT_MS = 60000;
-        const CHAT_FIRST_TOKEN_TIMEOUT_MS = 60000;
+        const CHAT_FIRST_BYTE_TIMEOUT_MS = 200000;
+        const CHAT_FIRST_TOKEN_TIMEOUT_MS = 200000;
         const CHAT_STREAM_IDLE_TIMEOUT_MS = 120000;
         const CHAT_TOTAL_TIMEOUT_MS = 600000;
+        const CHAT_WAIT_TIMEOUT_MIN_SECONDS = 1;
+        const CHAT_WAIT_TIMEOUT_MAX_SECONDS = 600;
+        // 2026-09-23: reasoning models routinely think for minutes before the
+        // first byte / first token, so the wait stages are user-tunable now
+        // (settings.chatWaitTimeoutSeconds, default 200s). Disabling the switch
+        // removes the wait budget entirely — only CHAT_TOTAL_TIMEOUT_MS still
+        // applies. Invalid/blank input falls back to the built-in default.
+        const resolveChatWaitTimeoutMs = () => {
+            if (settings?.chatWaitTimeoutEnabled === false) return CHAT_TOTAL_TIMEOUT_MS;
+            const seconds = Number(settings?.chatWaitTimeoutSeconds);
+            if (!Number.isFinite(seconds) || seconds <= 0) return CHAT_FIRST_BYTE_TIMEOUT_MS;
+            const clamped = Math.min(CHAT_WAIT_TIMEOUT_MAX_SECONDS, Math.max(CHAT_WAIT_TIMEOUT_MIN_SECONDS, Math.round(seconds)));
+            return clamped * 1000;
+        };
         const CHAT_MAX_ATTEMPTS = 3;
         const CHAT_RETRY_BASE_DELAY_MS = 800;
         const sleepChatRetry = (attempt) => new Promise(resolve => setTimeout(resolve, CHAT_RETRY_BASE_DELAY_MS * attempt));
@@ -1270,9 +1284,10 @@ export function useMessageSender(deps) {
                         // alias (`const chatRequestGuard = createChatRequestGuard`) turned
                         // every send into "chatRequestGuard.create is not a function",
                         // which friendlyNetworkErrorMessage misreported as a CORS error.
+                        const chatWaitTimeoutMs = resolveChatWaitTimeoutMs();
                         const chatGuard = createChatRequestGuard({
-                            firstByteMs: CHAT_FIRST_BYTE_TIMEOUT_MS,
-                            firstTokenMs: CHAT_FIRST_TOKEN_TIMEOUT_MS,
+                            firstByteMs: chatWaitTimeoutMs,
+                            firstTokenMs: chatWaitTimeoutMs,
                             streamIdleMs: CHAT_STREAM_IDLE_TIMEOUT_MS,
                             totalMs: CHAT_TOTAL_TIMEOUT_MS
                         });

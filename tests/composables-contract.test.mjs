@@ -611,7 +611,7 @@ test('useMessageSender composable holds the chat generation pipeline', () => {
     assert.ok(senderSource.includes('const generateResponse = async (startTime = null, options = {}) => {'), 'owns generateResponse');
     assert.ok(senderSource.includes('return { generateResponse };'), 'exposes only generateResponse');
     // chat request resilience policy moved along with the pipeline
-    assert.ok(senderSource.includes('CHAT_FIRST_BYTE_TIMEOUT_MS = 60000'));
+    assert.ok(senderSource.includes('CHAT_FIRST_BYTE_TIMEOUT_MS = 200000'));
     assert.ok(senderSource.includes('const sleepChatRetry = (attempt) =>'));
     assert.ok(senderSource.includes('const truncateErrorMessage = (message, maxLength = 600) => {'));
     // waitTimer is private to the pipeline (all its uses moved here)

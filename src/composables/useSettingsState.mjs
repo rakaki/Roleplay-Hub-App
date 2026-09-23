@@ -70,6 +70,8 @@ export function useSettingsState() {
         reasoningEffort: '',            // inline panel: '', none, low, medium, high, max
         autoFetchModels: true,
         stream: true,
+        chatWaitTimeoutEnabled: true,   // 首字节/首个正文的等待超时开关（思考模型常需要更久）
+        chatWaitTimeoutSeconds: 200,    // 等待超时秒数，默认 200 秒（关闭开关时不受此限制）
         styleFilterEnabled: true,       // inline panel: strip AI-cliché fragments from replies
         showLatestUsageBar: false,      // inline panel: latest request token usage bar
         activeToolAggressiveness: 'adaptive',
